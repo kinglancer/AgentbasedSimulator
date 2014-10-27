@@ -7,7 +7,7 @@ import System.IO
 import Data.List
 import Data.Char
 
-import Control.Monad.Par
+
 
 
 assetreturnscoln = 27  
@@ -181,58 +181,22 @@ sim_updatestate t args (m, b, c, br) (x:xs) myrands
                                                --
                                                                                                       
 showsimstate_t :: Simstate_t -> [Char]
---showsimstate_t (m,b,c,br) = runPar $do       -- static partitioning,one task for each element in m
---                            let t = show b
---                            let bm = (concat (map (concat.(map showmsg_t)) (drop 1 br)))
---                            let h  = (concat (map showmsg_t c))
---                            msg2Sim <- parMap (concat.(map showmsg_t)) (drop 1 m)
---                            let m2s = concat msg2Sim
---                            return (", \n\nSystem Time: "++t++"\nMessages to sim: "++m2s++", \n\nHarness messages: " ++ h ++ "\n\nBroadcasts: "++bm++"\n\n\nEND OF STATE\n") 
-                            
---showsimstate_t (m,b,c,br) = runPar $do       -- static partitioning, split in half                                                                                                                        
---                            let t = show b                                                                                                                                   
---                            let bm = (concat (map (concat.(map showmsg_t)) (drop 1 br)))                                                                                     
---                            let h  = (concat (map showmsg_t c))                                                                                                              
---                            let mm = drop 1 m
---                            --i1 <-new
---                            --i2 <-new
---                            --fork $ put i1 (map showmsg_t (head mm))
---                            --fork $ put i2 (map (concat.(map showmsg_t)) (tail mm))
---                            i1 <-  (spawn.return.(map showmsg_t)) (head mm)
---                            i2 <-  (spawn.return.(map (concat.(map showmsg_t)))) (tail mm)
---                            m11 <- get i1
---                            m22 <- get i2                                                                                                                    
---                            let m2s = concat (m11 ++ m22)                                                                                                                         
---                            return (", \n\nSystem Time: "++t++"\nMessages to sim: "++m2s++", \n\nHarness messages: " ++ h ++ "\n\nBroadcasts: "++bm++"\n\n\nEND OF STATE\n") 
-                            
 
-
---showsimstate_t (m,b,c,br) = runPar $do    -- straightforward solution
---                            sysT    <- spawnP $ show b
---                            msg2Sim <- spawnP $ (concat (map (concat.(map showmsg_t)) (drop 1 m)))
---                            hMsg    <- spawnP $ (concat (map showmsg_t c))
---                            bMsg    <- spawnP $ (concat (map (concat.(map showmsg_t)) (drop 1 br)))
---                            t <- get sysT
---                            m2s <- get msg2Sim
---                            h <- get hMsg
---                            bm <- get bMsg
---                            return (", \n\nSystem Time: "++t++"\nMessages to sim: "++m2s++", \n\nHarness messages: " ++ h ++ "\n\nBroadcasts: "++bm++"\n\n\nEND OF STATE\n")
-
-showsimstate_t (m,b,c,br)  = ", \n\nSystem Time: "++t++"\nMessages to sim: "++m2s++", \n\nHarness messages: " ++ h ++ "\n\nBroadcasts: "++bm++"\n\n\nEND OF STATE\n"  --for profiling
-                             where
-                             t = show b
-                             bm = (concat (map (concat.(map showmsg_t)) (drop 1 br)))   
-                             h  = (concat (map showmsg_t c))                        
-                             m2s = concat msg2Sim
-                             msg2Sim = [f] ++ g
-                                       where
-                                       f = (concat.(map showmsg_t)) (head (drop 1 m))
-                                       g = map (concat.(map showmsg_t)) (tail (drop 1 m))
+--showsimstate_t (m,b,c,br)  = ", \n\nSystem Time: "++t++"\nMessages to sim: "++m2s++", \n\nHarness messages: " ++ h ++ "\n\nBroadcasts: "++bm++"\n\n\nEND OF STATE\n"  --for profiling
+--                             where
+--                             t = show b
+--                             bm = (concat (map (concat.(map showmsg_t)) (drop 1 br)))   
+--                             h  = (concat (map showmsg_t c))                        
+--                             m2s = concat msg2Sim
+--                             msg2Sim = [f] ++ g
+--                                       where
+--                                       f = (concat.(map showmsg_t)) (head (drop 1 m))
+--                                       g = map (concat.(map showmsg_t)) (tail (drop 1 m))
                              
                              
                              
                               
---showsimstate_t (m,b,c,br) = ", \n\nSystem Time: "++(show b)++"\nMessages to sim: "++(concat (map (concat.(map showmsg_t)) (drop 1 m)))++", \n\nHarness messages: " ++ (concat (map showmsg_t c)) ++ "\n\nBroadcasts: "++(concat (map (concat.(map showmsg_t)) (drop 1 br)))++"\n\n\nEND OF STATE\n"  --original
+showsimstate_t (m,b,c,br) = ", \n\nSystem Time: "++(show b)++"\nMessages to sim: "++(concat (map (concat.(map showmsg_t)) (drop 1 m)))++", \n\nHarness messages: " ++ (concat (map showmsg_t c)) ++ "\n\nBroadcasts: "++(concat (map (concat.(map showmsg_t)) (drop 1 br)))++"\n\n\nEND OF STATE\n"  --original
 
 --Dropping 1 from m to avoid printing harness messages twice.
 --showsimstate_t (m,b,c,br) = ", \n\nTime: "++(show b)++"\nMessages to sim: "++(concat (map (concat.(map show)) m))++", \n\nUnknown: "++(show c)++", \n\nBroadcasts: "++(show br)++"\n\n\nEND OF STATE\n" OLD UNKNOWN FIX ME
